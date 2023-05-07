@@ -4,7 +4,6 @@ const multer = require('multer');
 const csvtojson = require('csvtojson');
 const cors = require('cors');
 const { exec } = require('child_process');
-const { spawn } = require('child_process');
 
 let commandsExecuted = false;
 
@@ -33,11 +32,16 @@ const executeCommands = () => {
     console.log(stdout);
   });
 
-  
+  // exec('node Emailer.js', (err, stdout, stderr) => {
+  //   if (err) {
+  //     console.error(err);
+  //     return;
+  //   }
+  //   console.log(stdout);
+  // });
+
   commandsExecuted = true;
 };
-
-
 
 const app = express();
 app.use(express.json());
@@ -61,29 +65,6 @@ mongoose.connect('mongodb://localhost/gtl2', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-
-// Email sending API
-app.get('/send-email', (req, res) => {
-  const emailer = spawn('node', ['Emailer.js']);
-
-  emailer.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  emailer.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
-
-  emailer.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
-    if (code === 0) {
-      res.status(200).send('Email sent successfully');
-    } else {
-      res.status(500).send(`Emailer.js process exited with code ${code}`);
-    }
-  });
-});
-
 
 // Define the schema for the CSV data
 const csvSchema = new mongoose.Schema({
